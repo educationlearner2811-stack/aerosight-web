@@ -1632,57 +1632,41 @@ function opsToggle() {
 }
 
 function opsSet(risk, origin, dest) {
-  const isHigh = risk === 'HIGH';
-  const bar    = document.getElementById('ops-bar');
-  const ico    = document.getElementById('ops-ico');
-  const badge  = document.getElementById('ops-badge');
-  const sev    = document.getElementById('ops-sev');
-  const sevLbl = document.getElementById('ops-sev-lbl');
-  const sevCode= document.getElementById('ops-sev-code');
-  const drop   = document.getElementById('ops-drop');
-  const modG   = document.getElementById('ops-mod-grid');
-  const highG  = document.getElementById('ops-high-grid');
-  const modA   = document.getElementById('ops-mod-actions');
-  const highA  = document.getElementById('ops-high-actions');
-  const ref    = document.getElementById('ops-ref');
-  const ts     = document.getElementById('ops-ts');
-
-  const now = new Date();
-  ts.textContent = 'Generated: ' + now.toUTCString().slice(0,25) + ' UTC';
-  sevCode.textContent = (isHigh ? 'OPS-IROP-01' : 'OPS-ADV-02') + ' · ' + origin + '→' + dest;
-
-  if (isHigh) {
-    bar.classList.add('high-open');
-    ico.classList.add('red');
-    badge.textContent = 'HIGH RISK';
-    badge.classList.add('red');
-    sev.className = 'ops-sev high';
-    sevLbl.textContent = 'High Risk — IROP ADVISORY';
-    drop.classList.add('red-border');
-    modG.classList.add('hidden');
-    highG.classList.remove('hidden');
-    modA.classList.add('hidden');
-    highA.classList.remove('hidden');
-    ref.textContent = 'REF-IROP-' + Math.floor(Math.random()*900+100);
-  } else {
-    bar.classList.remove('high-open');
-    ico.classList.remove('red');
-    badge.textContent = 'MODERATE RISK';
-    badge.classList.remove('red');
-    sev.className = 'ops-sev mod';
-    sevLbl.textContent = 'Moderate Risk — ADVISORY';
-    drop.classList.remove('red-border');
-    highG.classList.add('hidden');
-    modG.classList.remove('hidden');
-    highA.classList.add('hidden');
-    modA.classList.remove('hidden');
-    ref.textContent = 'REF-ADV-' + Math.floor(Math.random()*900+100);
-  }
-
-  // Reset open state — user opens manually
-  drop.classList.remove('open');
-  bar.classList.remove('open');
-  document.getElementById('ops-chev').classList.remove('open');
+  // ops toggle removed from Tab 1 — exit silently
+  const bar = document.getElementById('ops-bar');
+  if (!bar) return;
+  try {
+    const isHigh = risk === 'HIGH';
+    const get = id => document.getElementById(id);
+    const ico=get('ops-ico'), badge=get('ops-badge');
+    const sev=get('ops-sev'), sevLbl=get('ops-sev-lbl'), sevCode=get('ops-sev-code');
+    const drop=get('ops-drop'), modG=get('ops-mod-grid'), highG=get('ops-high-grid');
+    const modA=get('ops-mod-actions'), highA=get('ops-high-actions');
+    const ref=get('ops-ref'), ts=get('ops-ts'), chev=get('ops-chev');
+    if(!drop||!badge||!sev||!sevLbl||!sevCode||!modG||!highG||!modA||!highA||!ref||!ts) return;
+    const now = new Date();
+    ts.textContent = 'Generated: ' + now.toUTCString().slice(0,25) + ' UTC';
+    sevCode.textContent = (isHigh?'OPS-IROP-01':'OPS-ADV-02') + ' · ' + origin + '→' + dest;
+    if (isHigh) {
+      bar.classList.add('high-open'); if(ico) ico.classList.add('red');
+      badge.textContent='HIGH RISK'; badge.classList.add('red');
+      sev.className='ops-sev high'; sevLbl.textContent='High Risk — IROP ADVISORY';
+      drop.classList.add('red-border');
+      modG.classList.add('hidden'); highG.classList.remove('hidden');
+      modA.classList.add('hidden'); highA.classList.remove('hidden');
+      ref.textContent='REF-IROP-'+Math.floor(Math.random()*900+100);
+    } else {
+      bar.classList.remove('high-open'); if(ico) ico.classList.remove('red');
+      badge.textContent='MODERATE RISK'; badge.classList.remove('red');
+      sev.className='ops-sev mod'; sevLbl.textContent='Moderate Risk — ADVISORY';
+      drop.classList.remove('red-border');
+      highG.classList.add('hidden'); modG.classList.remove('hidden');
+      highA.classList.add('hidden'); modA.classList.remove('hidden');
+      ref.textContent='REF-ADV-'+Math.floor(Math.random()*900+100);
+    }
+    drop.classList.remove('open'); bar.classList.remove('open');
+    if(chev) chev.classList.remove('open');
+  } catch(err) { console.warn('opsSet error:', err); }
 }
 
 // ── Bootstrap ─────────────────────────────────────────────
