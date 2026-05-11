@@ -520,7 +520,7 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
 <section class="hero">
   <div class="hero-badge">
     <div class="pulse-dot"></div>
-    ML Model Active — Random Forest v2.4
+    ML Model Active — LightGBM + SHAP v2.4
   </div>
   <h1>Know Before<br>You <span class="grad">Fly.</span></h1>
   <p class="hero-sub">
@@ -530,46 +530,71 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
   </p>
 
   <div class="search-card">
-    <div class="search-row">
+    <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem">
 
-      <!-- From / To -->
-      <div style="grid-column:span 2">
+      <!-- Row 1: Route -->
+      <div>
         <div class="field-label">Route</div>
         <div class="from-to">
           <div class="fg">
             <div class="field-wrap">
               <span class="field-icon">✈</span>
-              <input class="field-input" type="text" id="from-input" placeholder="From — city or IATA" value="Dubai (DXB)">
+              <input class="field-input" type="text" id="from-input" placeholder="From — city or IATA" value="New York (JFK)">
             </div>
           </div>
           <div class="swap-btn" onclick="swapAirports()" title="Swap">⇄</div>
           <div class="fg">
             <div class="field-wrap">
               <span class="field-icon" style="left:28px">→</span>
-              <input class="field-input" type="text" id="to-input" placeholder="To — city or IATA" value="London (LHR)">
+              <input class="field-input" type="text" id="to-input" placeholder="To — city or IATA" value="Los Angeles (LAX)">
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Date -->
-      <div>
-        <div class="field-label">Departure Date</div>
-        <div class="field-wrap">
-          <span class="field-icon">📅</span>
-          <input class="field-input" type="date" id="dep-date" value="2025-07-14">
-        </div>
-      </div>
+      <!-- Row 2: Airline + Date + Time -->
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:.75rem;align-items:end">
 
-      <!-- Time -->
-      <div>
-        <div class="field-label">Departure Time</div>
-        <div class="field-wrap">
-          <span class="field-icon">⏱</span>
-          <input class="field-input" type="time" id="dep-time" value="22:30">
+        <!-- Airline -->
+        <div>
+          <div class="field-label">Airline</div>
+          <div class="field-wrap">
+            <span class="field-icon">🏢</span>
+            <select class="field-input" id="airline-select" style="padding-left:2.2rem;cursor:pointer">
+              <option value="">Any Airline</option>
+              <option value="AA">American Airlines (AA)</option>
+              <option value="DL" selected>Delta Air Lines (DL)</option>
+              <option value="UA">United Airlines (UA)</option>
+              <option value="WN">Southwest Airlines (WN)</option>
+              <option value="B6">JetBlue Airways (B6)</option>
+              <option value="AS">Alaska Airlines (AS)</option>
+              <option value="NK">Spirit Airlines (NK)</option>
+              <option value="F9">Frontier Airlines (F9)</option>
+              <option value="G4">Allegiant Air (G4)</option>
+              <option value="HA">Hawaiian Airlines (HA)</option>
+            </select>
+          </div>
         </div>
-      </div>
 
+        <!-- Date -->
+        <div>
+          <div class="field-label">Departure Date</div>
+          <div class="field-wrap">
+            <span class="field-icon">📅</span>
+            <input class="field-input" type="date" id="dep-date" value="2025-07-14">
+          </div>
+        </div>
+
+        <!-- Time -->
+        <div>
+          <div class="field-label">Departure Time</div>
+          <div class="field-wrap">
+            <span class="field-icon">⏱</span>
+            <input class="field-input" type="time" id="dep-time" value="08:00">
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <button class="cta-btn" id="predict-btn" onclick="runAnalysis()">
@@ -581,10 +606,10 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
 
     <div class="hint-row" style="margin-top:1rem">
       <span class="hint-lbl">Try:</span>
-      <span class="hint-tag" onclick="setRoute('Dubai (DXB)','Mumbai (BOM)')">DXB → BOM</span>
-      <span class="hint-tag" onclick="setRoute('Dubai (DXB)','London (LHR)')">DXB → LHR</span>
-      <span class="hint-tag" onclick="setRoute('Abu Dhabi (AUH)','Doha (DOH)')">AUH → DOH</span>
-      <span class="hint-tag" onclick="setRoute('Sharjah (SHJ)','Cairo (CAI)')">SHJ → CAI</span>
+      <span class="hint-tag" onclick="setRoute('New York (JFK)','Los Angeles (LAX)')">JFK → LAX</span>
+      <span class="hint-tag" onclick="setRoute('Chicago (ORD)','Miami (MIA)')">ORD → MIA</span>
+      <span class="hint-tag" onclick="setRoute('Dallas (DFW)','New York (JFK)')">DFW → JFK</span>
+      <span class="hint-tag" onclick="setRoute('Atlanta (ATL)','Los Angeles (LAX)')">ATL → LAX</span>
     </div>
   </div>
 </section>
@@ -596,8 +621,8 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
   <aside class="sidebar">
     <div class="s-section">
       <div class="s-title">Region Data</div>
-      <div class="r-item active"><div class="r-dot"></div>Middle East<span class="r-badge">Live</span></div>
-      <div class="r-item"><div class="r-dot"></div>South Asia<span class="r-badge">Live</span></div>
+      <div class="r-item active"><div class="r-dot"></div>US Domestic<span class="r-badge">Live</span></div>
+      <div class="r-item" style="opacity:.45;pointer-events:none"><div class="r-dot"></div>Middle East<span class="r-badge soon">Soon</span></div>
       <div class="r-item" style="opacity:.45;pointer-events:none"><div class="r-dot"></div>Europe<span class="r-badge soon">Soon</span></div>
       <div class="r-item" style="opacity:.45;pointer-events:none"><div class="r-dot"></div>Americas<span class="r-badge soon">Soon</span></div>
       <div class="r-item" style="opacity:.45;pointer-events:none"><div class="r-dot"></div>East Asia<span class="r-badge soon">Soon</span></div>
@@ -605,19 +630,19 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
     <div class="s-section">
       <div class="s-title">Today's Snapshot</div>
       <div class="stat-grid">
-        <div class="s-stat"><div class="s-val teal">94.1%</div><div class="s-key">On-Time Rate</div></div>
+        <div class="s-stat"><div class="s-val teal">79.4%</div><div class="s-key">On-Time Rate</div></div>
         <div class="s-stat"><div class="s-val warn">18 min</div><div class="s-key">Avg Delay</div></div>
-        <div class="s-stat"><div class="s-val dimmed">1,284</div><div class="s-key">Flights Today</div></div>
+        <div class="s-stat"><div class="s-val dimmed">45,000+</div><div class="s-key">Flights/Day</div></div>
         <div class="s-stat"><div class="s-val bluish">3</div><div class="s-key">Active Alerts</div></div>
       </div>
     </div>
     <div class="s-section">
       <div class="s-title">Model Info</div>
       <div style="font-size:.77rem;color:var(--text-muted);display:flex;flex-direction:column;gap:.5rem">
-        <div style="display:flex;justify-content:space-between"><span>Algorithm</span><span style="color:var(--text)">Random Forest</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Algorithm</span><span style="color:var(--text)">LightGBM</span></div>
         <div style="display:flex;justify-content:space-between"><span>Accuracy</span><span style="color:#2dd4bf">89.3%</span></div>
         <div style="display:flex;justify-content:space-between"><span>Features</span><span style="color:var(--text)">14</span></div>
-        <div style="display:flex;justify-content:space-between"><span>Records</span><span style="color:var(--text)">6.2M</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Records</span><span style="color:var(--text)">6.9M US</span></div>
         <div style="display:flex;justify-content:space-between"><span>Updated</span><span style="color:var(--text)">Today</span></div>
       </div>
     </div>
@@ -685,8 +710,8 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
         <div class="info-row">
           <div class="info-cell">
             <div class="ic-lbl">Flight</div>
-            <div class="ic-val">EK 001</div>
-            <div class="ic-sub">Emirates</div>
+            <div class="ic-val" id="ic-flight">DL 412</div>
+            <div class="ic-sub" id="ic-airline">Delta Air Lines</div>
           </div>
           <div class="info-cell">
             <div class="ic-lbl">Departs</div>
@@ -714,16 +739,16 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
           <div class="rt-title">Route Preview</div>
           <div class="route-vis">
             <div class="ra">
-              <div class="ra-code" id="from-code">DXB</div>
-              <div class="ra-name">Dubai Intl</div>
+              <div class="ra-code" id="from-code">JFK</div>
+              <div class="ra-name">New York JFK</div>
             </div>
             <div class="rm">
               <div class="route-line"><div class="rp">✈</div></div>
-              <div class="route-dur">~6h 45m</div>
+              <div class="route-dur">~5h 30m</div>
             </div>
             <div class="ra">
-              <div class="ra-code" id="to-code">LHR</div>
-              <div class="ra-name">London Heathrow</div>
+              <div class="ra-code" id="to-code">LAX</div>
+              <div class="ra-name">Los Angeles</div>
             </div>
           </div>
           <div class="rt-badges">
@@ -732,11 +757,11 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
               <div class="rt-bk">Departs (local)</div>
             </div>
             <div class="rt-badge">
-              <div class="rt-bv">02:15+1</div>
+              <div class="rt-bv">13:30</div>
               <div class="rt-bk">Arrives (local)</div>
             </div>
             <div class="rt-badge">
-              <div class="rt-bv" style="color:#f59e0b">Late Eve</div>
+              <div class="rt-bv" id="slot-cat" style="color:#2dd4bf">Morning</div>
               <div class="rt-bk">Slot Category</div>
             </div>
           </div>
@@ -797,7 +822,7 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
             <div class="ops-severity moderate" id="ops-severity-bar">
               <div class="ops-sev-dot"></div>
               <span class="ops-sev-label">Moderate Risk — ADVISORY</span>
-              <span class="ops-sev-code" id="ops-sev-code">OPS-ADV-02 · EK001 · DXB→LHR</span>
+              <span class="ops-sev-code" id="ops-sev-code">OPS-ADV-02 · DL · JFK→LAX</span>
             </div>
 
             <div class="ops-grid" id="ops-moderate-grid">
@@ -874,7 +899,7 @@ input[type=time]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)
 </div>
 
 <footer class="footer-bar">
-  <div>© 2025 Aerosight Intelligence — powered by 6.2M flight records</div>
+  <div>© 2025 Aerosight Intelligence — powered by 6.9M US domestic flight records</div>
   <div style="display:flex;gap:1.5rem">
     <a href="#">Docs</a><a href="#">API</a><a href="#">Privacy</a>
   </div>
@@ -938,6 +963,28 @@ function runAnalysis(){
       const dt=new Date(d+'T12:00:00');
       document.getElementById('ic-date').textContent=dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
     }
+    // Update airline display
+    const airlineSelect = document.getElementById('airline-select');
+    const airlineMap = {
+      'AA':'American Airlines','DL':'Delta Air Lines','UA':'United Airlines',
+      'WN':'Southwest Airlines','B6':'JetBlue Airways','AS':'Alaska Airlines',
+      'NK':'Spirit Airlines','F9':'Frontier Airlines','G4':'Allegiant Air','HA':'Hawaiian Airlines','':"All Airlines"
+    };
+    const airlineCode = airlineSelect.value || 'DL';
+    const airlineName = airlineMap[airlineSelect.value] || 'Delta Air Lines';
+    if(document.getElementById('ic-flight')) document.getElementById('ic-flight').textContent = airlineCode + ' 412';
+    if(document.getElementById('ic-airline')) document.getElementById('ic-airline').textContent = airlineName;
+
+    // Time slot category
+    const tVal = document.getElementById('dep-time').value || '08:00';
+    const hr = parseInt(tVal.split(':')[0]);
+    let slotLabel = 'Morning'; let slotColor = '#2dd4bf';
+    if(hr >= 12 && hr < 17){slotLabel='Afternoon';slotColor='#3b82f6';}
+    else if(hr >= 17 && hr < 21){slotLabel='Evening';slotColor='#f59e0b';}
+    else if(hr >= 21 || hr < 5){slotLabel='Late Night';slotColor='#ef4444';}
+    const slotEl = document.getElementById('slot-cat');
+    if(slotEl){slotEl.textContent=slotLabel;slotEl.style.color=slotColor;}
+
     const fromVal=document.getElementById('from-input').value;
     const toVal=document.getElementById('to-input').value;
     const fromCode=fromVal.match(/\(([A-Z]{3})\)/)?.[1]||fromVal.slice(0,3).toUpperCase();
