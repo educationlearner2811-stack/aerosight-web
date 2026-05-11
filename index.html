@@ -1278,8 +1278,9 @@ async function peRun() {
     document.getElementById('pe-ana').classList.remove('active');
     peRender(data,airline,origin,dest,hour,dow,month);
   } catch(e) {
+    console.error('peRun error:', e);
     document.getElementById('pe-ana').classList.remove('active');
-    alert('Prediction failed. Please try again.');
+    alert('Prediction failed. Error: ' + e.message);
   }
   btn.disabled=false; sp.style.display='none'; bt.textContent='Generate Action Plan';
 }
@@ -1330,8 +1331,8 @@ function peRender(data,airline,origin,dest,hour,dow,month) {
   if(db){
     if(isH){db.className='dep-box db-d';db.textContent='Delay departure 20-45 mins — high network delay risk detected.';}
     else if(isM){db.className='dep-box db-w';db.textContent='Proceed with caution — build 10-min buffer into schedule.';}
+    else{db.className='dep-box db-g';db.textContent='Proceed on schedule — conditions are acceptable.';}
   }
-  else{db.className='dep-box db-g';db.textContent='Proceed on schedule — conditions are acceptable.';}
 
   const fl=document.getElementById('pe-flist'); fl.innerHTML='';
   (data.shap||[]).forEach((item,i)=>{
@@ -1578,45 +1579,39 @@ function peOpsToggle() {
 }
 
 function peOpsSet(risk, origin, dest) {
-  const isHigh = risk === 'HIGH';
-  const bar    = document.getElementById('pe-ops-bar');
-  const ico    = document.getElementById('pe-ops-ico');
-  const badge  = document.getElementById('pe-ops-badge');
-  const sev    = document.getElementById('pe-ops-sev');
-  const sevLbl = document.getElementById('pe-ops-sev-lbl');
-  const sevCode= document.getElementById('pe-ops-sev-code');
-  const drop   = document.getElementById('pe-ops-drop');
-  const modG   = document.getElementById('pe-ops-mod-grid');
-  const highG  = document.getElementById('pe-ops-high-grid');
-  const modA   = document.getElementById('pe-ops-mod-actions');
-  const highA  = document.getElementById('pe-ops-high-actions');
-  const ref    = document.getElementById('pe-ops-ref');
-  const ts     = document.getElementById('pe-ops-ts');
-
-  const now = new Date();
-  ts.textContent = 'Generated: ' + now.toUTCString().slice(0,25) + ' UTC';
-  sevCode.textContent = (isHigh ? 'OPS-IROP-01' : 'OPS-ADV-02') + ' · ' + origin + '→' + dest;
-
-  if (isHigh) {
-    bar.classList.add('high-open'); ico.classList.add('red');
-    badge.textContent = 'HIGH RISK'; badge.classList.add('red');
-    sev.className = 'ops-sev high'; sevLbl.textContent = 'High Risk — IROP ADVISORY';
-    drop.classList.add('red-border');
-    modG.classList.add('hidden'); highG.classList.remove('hidden');
-    modA.classList.add('hidden'); highA.classList.remove('hidden');
-    ref.textContent = 'REF-IROP-' + Math.floor(Math.random()*900+100);
-  } else {
-    bar.classList.remove('high-open'); ico.classList.remove('red');
-    badge.textContent = 'MODERATE RISK'; badge.classList.remove('red');
-    sev.className = 'ops-sev mod'; sevLbl.textContent = 'Moderate Risk — ADVISORY';
-    drop.classList.remove('red-border');
-    highG.classList.add('hidden'); modG.classList.remove('hidden');
-    highA.classList.add('hidden'); modA.classList.remove('hidden');
-    ref.textContent = 'REF-ADV-' + Math.floor(Math.random()*900+100);
-  }
-  // Reset closed
-  drop.classList.remove('open'); bar.classList.remove('open');
-  document.getElementById('pe-ops-chev').classList.remove('open');
+  try {
+    const isHigh = risk === 'HIGH';
+    const get = id => document.getElementById(id);
+    const bar=get('pe-ops-bar'), ico=get('pe-ops-ico'), badge=get('pe-ops-badge');
+    const sev=get('pe-ops-sev'), sevLbl=get('pe-ops-sev-lbl'), sevCode=get('pe-ops-sev-code');
+    const drop=get('pe-ops-drop'), modG=get('pe-ops-mod-grid'), highG=get('pe-ops-high-grid');
+    const modA=get('pe-ops-mod-actions'), highA=get('pe-ops-high-actions');
+    const ref=get('pe-ops-ref'), ts=get('pe-ops-ts'), chev=get('pe-ops-chev');
+    // Abort silently if any element missing
+    if(!bar||!drop||!badge||!sev||!sevLbl||!sevCode||!modG||!highG||!modA||!highA||!ref||!ts) return;
+    const now = new Date();
+    ts.textContent = 'Generated: ' + now.toUTCString().slice(0,25) + ' UTC';
+    sevCode.textContent = (isHigh ? 'OPS-IROP-01' : 'OPS-ADV-02') + ' · ' + origin + '→' + dest;
+    if (isHigh) {
+      bar.classList.add('high-open'); if(ico) ico.classList.add('red');
+      badge.textContent='HIGH RISK'; badge.classList.add('red');
+      sev.className='ops-sev high'; sevLbl.textContent='High Risk — IROP ADVISORY';
+      drop.classList.add('red-border');
+      modG.classList.add('hidden'); highG.classList.remove('hidden');
+      modA.classList.add('hidden'); highA.classList.remove('hidden');
+      ref.textContent='REF-IROP-'+Math.floor(Math.random()*900+100);
+    } else {
+      bar.classList.remove('high-open'); if(ico) ico.classList.remove('red');
+      badge.textContent='MODERATE RISK'; badge.classList.remove('red');
+      sev.className='ops-sev mod'; sevLbl.textContent='Moderate Risk — ADVISORY';
+      drop.classList.remove('red-border');
+      highG.classList.add('hidden'); modG.classList.remove('hidden');
+      highA.classList.add('hidden'); modA.classList.remove('hidden');
+      ref.textContent='REF-ADV-'+Math.floor(Math.random()*900+100);
+    }
+    drop.classList.remove('open'); bar.classList.remove('open');
+    if(chev) chev.classList.remove('open');
+  } catch(err) { console.warn('peOpsSet error:', err); }
 }
 
 // ── Ops Toggle ────────────────────────────────────────────
