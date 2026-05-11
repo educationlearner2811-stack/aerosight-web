@@ -715,24 +715,109 @@ footer{border-top:1px solid var(--border);padding:1.1rem 2.5rem;display:flex;ali
         <div class="stat-card"><div class="scl">Est. Cost (No Action)</div><div class="scv" id="pe-cost" style="color:#ef4444">-</div><div class="scs">Based on expected delay</div></div>
         <div class="stat-card"><div class="scl">Potential Savings</div><div class="scv" id="pe-save" style="color:#2dd4bf">-</div><div class="scs">With early intervention</div></div>
       </div>
-      <div class="action-grid">
-        <div class="rc">
-          <div class="sp">
-            <div class="stit">Immediate Action Plan</div>
-            <div id="pe-recs"></div>
+      <!-- Risk Factors full width -->
+      <div class="rc" style="padding:1.4rem;margin-bottom:0">
+        <div class="stit">Risk Factors <span class="ftag">SHAP Values</span></div>
+        <div class="flist" id="pe-flist" style="margin-top:.75rem"></div>
+      </div>
+
+      <!-- ── Airline Operations Toggle (Tab 2) ─────────── -->
+      <div id="pe-ops-section">
+        <div class="ops-bar" id="pe-ops-bar" onclick="peOpsToggle()">
+          <div class="ops-left">
+            <div class="ops-ico" id="pe-ops-ico">✈</div>
+            <div>
+              <div class="ops-lbl">Airline Operations View</div>
+              <div class="ops-sublbl">B2B operational alert — authorised personnel only</div>
+            </div>
           </div>
-          <div style="padding:1.4rem;border-top:1px solid var(--border)">
-            <div class="stit" style="margin-bottom:.5rem">Recommended Departure Window</div>
-            <div class="dep-box" id="pe-dep">-</div>
+          <div class="ops-right">
+            <span class="ops-badge" id="pe-ops-badge">MODERATE RISK</span>
+            <span class="ops-chev" id="pe-ops-chev">▾</span>
           </div>
         </div>
-        <div class="rc">
-          <div class="sp">
-            <div class="stit">Risk Factors <span class="ftag">SHAP Values</span></div>
-            <div class="flist" id="pe-flist"></div>
+        <div class="ops-drop" id="pe-ops-drop">
+          <div class="ops-inner">
+
+            <div class="ops-sev mod" id="pe-ops-sev">
+              <div class="ops-sev-dot"></div>
+              <span class="ops-sev-lbl" id="pe-ops-sev-lbl">Moderate Risk — ADVISORY</span>
+              <span class="ops-sev-code" id="pe-ops-sev-code">OPS-ADV-02</span>
+            </div>
+
+            <!-- MODERATE grid -->
+            <div class="ops-grid" id="pe-ops-mod-grid">
+              <div class="ops-alert">
+                <div class="ops-ah amber"><div class="ops-ah-dot"></div>Ground Ops — Pushback</div>
+                <div class="ops-ab">Probabilistic model indicates <strong>15–30 min pushback delay</strong> for this departure slot. Pre-notify ramp crew and tow team. Recommend <strong>T-45 min stand readiness</strong> vs standard T-30. No gate reassignment required at this stage.</div>
+              </div>
+              <div class="ops-alert">
+                <div class="ops-ah blue"><div class="ops-ah-dot"></div>Turnaround Planning</div>
+                <div class="ops-ab">Review downstream gate availability for inbound aircraft. <strong>Buffer gate hold</strong> recommended if slot congestion index exceeds threshold at arrival hub. Coordinate with slot coordinator for <strong>revised CTOT window</strong>.</div>
+              </div>
+              <div class="ops-alert">
+                <div class="ops-ah teal"><div class="ops-ah-dot"></div>Catering &amp; Fueling</div>
+                <div class="ops-ab">No immediate action required. Place catering team on <strong>30-min standby notification</strong>. Fueling uplift to proceed on original schedule — reassess if delay confirmed operationally at <strong>T-60 min</strong>.</div>
+              </div>
+              <div class="ops-alert">
+                <div class="ops-ah amber"><div class="ops-ah-dot"></div>Crew Duty Time</div>
+                <div class="ops-ab">Monitor FDP (Flight Duty Period) limits. A <strong>30-min delay</strong> does not trigger crew rest violation on this rotation. Flag to crew scheduling if ground time exceeds <strong>45 min</strong> — duty extension approval may be required.</div>
+              </div>
+            </div>
+
+            <!-- HIGH RISK grid -->
+            <div class="ops-grid hidden" id="pe-ops-high-grid">
+              <div class="ops-alert">
+                <div class="ops-ah red"><div class="ops-ah-dot"></div>Ground Ops — Critical</div>
+                <div class="ops-ab"><strong>Initiate IROP protocol immediately.</strong> Alert ramp supervisor and station manager. Gate reassignment assessment required. Coordinate with ATC for revised <strong>EOBT (Estimated Off-Block Time)</strong>.</div>
+              </div>
+              <div class="ops-alert">
+                <div class="ops-ah red"><div class="ops-ah-dot"></div>Passenger Rebooking</div>
+                <div class="ops-ab"><strong>Proactive rebooking review mandatory</strong> for all passengers with onward connections under 90 min at destination. Minimum 3 alternative routing options. Initiate automated rebooking for <strong>MCT-critical pax</strong> now.</div>
+              </div>
+              <div class="ops-alert">
+                <div class="ops-ah red"><div class="ops-ah-dot"></div>Crew FDP — Timeout Risk</div>
+                <div class="ops-ab"><strong>Crew timeout risk elevated.</strong> Initiate standby crew activation immediately. Contact crew scheduling for reserve positioning. FDP breach projected if block delay exceeds <strong>52 min</strong> on this rotation.</div>
+              </div>
+              <div class="ops-alert">
+                <div class="ops-ah red"><div class="ops-ah-dot"></div>Cascading Delay Risk</div>
+                <div class="ops-ab">Aircraft rotation analysis indicates <strong>2 downstream flights at risk</strong> from this delay propagation. Notify OCC. Assess tail-swap or slot-swap options for <strong>subsequent rotation</strong>.</div>
+              </div>
+            </div>
+
+            <!-- MODERATE actions -->
+            <div class="ops-actions" id="pe-ops-mod-actions">
+              <div class="ops-at">Recommended Action Sequence</div>
+              <div class="ops-alist">
+                <div class="ops-aitem"><div class="ops-anum amber">01</div><span><strong>T-45 min:</strong> Pre-notify ramp crew and tow team of probable late pushback window.</span></div>
+                <div class="ops-aitem"><div class="ops-anum amber">02</div><span><strong>T-40 min:</strong> Verify gate availability for downstream rotation. Hold buffer gate if possible.</span></div>
+                <div class="ops-aitem"><div class="ops-anum amber">03</div><span><strong>T-30 min:</strong> Reassess operationally — if delay confirmed, notify catering and revise fueling uplift schedule.</span></div>
+                <div class="ops-aitem"><div class="ops-anum amber">04</div><span><strong>T-20 min:</strong> Check crew FDP status. Escalate to crew scheduling if breach threshold is within 45 min range.</span></div>
+              </div>
+            </div>
+
+            <!-- HIGH RISK actions -->
+            <div class="ops-actions hidden" id="pe-ops-high-actions">
+              <div class="ops-at">Mandatory Action Sequence — IROP Active</div>
+              <div class="ops-alist">
+                <div class="ops-aitem"><div class="ops-anum red">01</div><span><strong>Immediate:</strong> Activate IROP protocol. Notify station manager, OCC, and ramp supervisor concurrently.</span></div>
+                <div class="ops-aitem"><div class="ops-anum red">02</div><span><strong>Immediate:</strong> Initiate proactive rebooking for all MCT-critical connecting passengers. Minimum 3 routing options required.</span></div>
+                <div class="ops-aitem"><div class="ops-anum red">03</div><span><strong>T-60 min:</strong> Contact crew scheduling — activate standby reserve crew. Assess tail-swap feasibility with OCC.</span></div>
+                <div class="ops-aitem"><div class="ops-anum red">04</div><span><strong>T-45 min:</strong> Coordinate revised EOBT with ATC slot coordinator. Notify downstream stations of cascading delay risk.</span></div>
+                <div class="ops-aitem"><div class="ops-anum red">05</div><span><strong>T-30 min:</strong> Issue passenger delay notification via all channels. Brief cabin crew on revised departure window.</span></div>
+              </div>
+            </div>
+
+            <div class="ops-foot">
+              <span id="pe-ops-ts" style="font-family:'DM Mono',monospace">Generated: —</span>
+              <span>Model: LightGBM · SHAP Explainability Active</span>
+              <span class="ops-ref" id="pe-ops-ref">REF-ADV-001</span>
+            </div>
+
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -1302,6 +1387,9 @@ function peRender(data,airline,origin,dest,hour,dow,month) {
   const isH=risk==='HIGH',isM=risk==='MODERATE';
   const rc=riskColor(risk);
 
+  // Set Tab 2 ops toggle
+  peOpsSet(risk, origin, dest);
+
   const garc=document.getElementById('pe-garc');
   garc.style.strokeDashoffset='220';
   garc.setAttribute('stroke',isH?'url(#gw2)':'url(#gg2)');
@@ -1570,6 +1658,62 @@ async function initPerf() {
   } catch(e) { console.error('Model perf init error:', e); }
 }
 
+
+
+// ── Tab 2 Ops Toggle ──────────────────────────────────────
+function peOpsToggle() {
+  const bar  = document.getElementById('pe-ops-bar');
+  const drop = document.getElementById('pe-ops-drop');
+  const chev = document.getElementById('pe-ops-chev');
+  const isOpen = drop.classList.contains('open');
+  if (isOpen) {
+    drop.classList.remove('open'); bar.classList.remove('open'); chev.classList.remove('open');
+  } else {
+    drop.classList.add('open'); bar.classList.add('open'); chev.classList.add('open');
+  }
+}
+
+function peOpsSet(risk, origin, dest) {
+  const isHigh = risk === 'HIGH';
+  const bar    = document.getElementById('pe-ops-bar');
+  const ico    = document.getElementById('pe-ops-ico');
+  const badge  = document.getElementById('pe-ops-badge');
+  const sev    = document.getElementById('pe-ops-sev');
+  const sevLbl = document.getElementById('pe-ops-sev-lbl');
+  const sevCode= document.getElementById('pe-ops-sev-code');
+  const drop   = document.getElementById('pe-ops-drop');
+  const modG   = document.getElementById('pe-ops-mod-grid');
+  const highG  = document.getElementById('pe-ops-high-grid');
+  const modA   = document.getElementById('pe-ops-mod-actions');
+  const highA  = document.getElementById('pe-ops-high-actions');
+  const ref    = document.getElementById('pe-ops-ref');
+  const ts     = document.getElementById('pe-ops-ts');
+
+  const now = new Date();
+  ts.textContent = 'Generated: ' + now.toUTCString().slice(0,25) + ' UTC';
+  sevCode.textContent = (isHigh ? 'OPS-IROP-01' : 'OPS-ADV-02') + ' · ' + origin + '→' + dest;
+
+  if (isHigh) {
+    bar.classList.add('high-open'); ico.classList.add('red');
+    badge.textContent = 'HIGH RISK'; badge.classList.add('red');
+    sev.className = 'ops-sev high'; sevLbl.textContent = 'High Risk — IROP ADVISORY';
+    drop.classList.add('red-border');
+    modG.classList.add('hidden'); highG.classList.remove('hidden');
+    modA.classList.add('hidden'); highA.classList.remove('hidden');
+    ref.textContent = 'REF-IROP-' + Math.floor(Math.random()*900+100);
+  } else {
+    bar.classList.remove('high-open'); ico.classList.remove('red');
+    badge.textContent = 'MODERATE RISK'; badge.classList.remove('red');
+    sev.className = 'ops-sev mod'; sevLbl.textContent = 'Moderate Risk — ADVISORY';
+    drop.classList.remove('red-border');
+    highG.classList.add('hidden'); modG.classList.remove('hidden');
+    highA.classList.add('hidden'); modA.classList.remove('hidden');
+    ref.textContent = 'REF-ADV-' + Math.floor(Math.random()*900+100);
+  }
+  // Reset closed
+  drop.classList.remove('open'); bar.classList.remove('open');
+  document.getElementById('pe-ops-chev').classList.remove('open');
+}
 
 // ── Ops Toggle ────────────────────────────────────────────
 function opsToggle() {
